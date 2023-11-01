@@ -9,7 +9,7 @@ import java.util.*
 
 fun UserAggregateState.create(id: UUID, nickname: String, password: String): UserCreatedEvent {
     return UserCreatedEvent(
-        UserId = id,
+        userId = id,
         nickname = nickname,
         password = password,
     )

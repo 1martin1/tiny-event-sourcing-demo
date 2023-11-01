@@ -18,9 +18,9 @@ fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): Pr
     )
 }
 
-fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
-    return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
-}
+//fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
+//    return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
+//}
 
 fun ProjectAggregateState.createTag(name: String): TagCreatedEvent {
     if (projectTags.values.any { it.name == name }) {

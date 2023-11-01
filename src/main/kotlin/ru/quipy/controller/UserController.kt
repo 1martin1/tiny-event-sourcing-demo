@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController
 import ru.quipy.api.UserAggregate
 import ru.quipy.api.UserCreatedEvent
 import ru.quipy.core.EventSourcingService
+import ru.quipy.logic.ProjectAggregateState
 import ru.quipy.logic.UserAggregateState
 import ru.quipy.logic.create
 import java.util.*
@@ -23,4 +24,10 @@ class UserController(
     fun createUser(@PathVariable userNickname: String, @RequestParam password: String) : UserCreatedEvent {
         return userEsService.create { it.create(UUID.randomUUID(), userNickname, password) }
     }
+
+    @GetMapping("/{userId}")
+    fun getUser(@PathVariable userId: UUID) : UserAggregateState? {
+        return userEsService.getState(userId);
+    }
+
 }

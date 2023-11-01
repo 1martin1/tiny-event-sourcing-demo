@@ -9,7 +9,7 @@ const val USER_CREATED_EVENT = "USER_CREATED_EVENT"
 // API
 @DomainEvent(name = USER_CREATED_EVENT)
 class UserCreatedEvent(
-    val UserId: UUID,
+    val userId: UUID,
     val nickname: String,
     val password: String,
     createdAt: Long = System.currentTimeMillis(),

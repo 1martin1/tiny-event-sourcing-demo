@@ -5,22 +5,24 @@ import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
 import java.util.*
 
-class UserAggregateState : AggregateState<UUID, UserAggregate> {
-    private lateinit var userId: UUID
+class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
+    private lateinit var taskId: UUID
+    private lateinit var taskName: String
+    private lateinit var executors: List<UUID>
     var createdAt: Long = System.currentTimeMillis()
     var updatedAt: Long = System.currentTimeMillis()
 
-    lateinit var nickname: String
-    lateinit var password: String
 
-    override fun getId() = userId
+    override fun getId() = taskId
 
     // State transition functions which is represented by the class member function
+
     @StateTransitionFunc
-    fun userCreatedApply(event: UserCreatedEvent) {
-        userId = event.userId
-        nickname = event.nickname
-        password = event.password
+    fun taskCreatedApply(event: TaskCreatedEvent) {
+        taskId = event.taskId;
+        taskName = event.taskName
+        executors = event.executors
+
         updatedAt = createdAt
     }
 }

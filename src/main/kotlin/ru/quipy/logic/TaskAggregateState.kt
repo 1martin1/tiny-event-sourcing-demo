@@ -25,4 +25,20 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
 
         updatedAt = createdAt
     }
+
+    @StateTransitionFunc
+    fun taskRenamedApply(event: TaskRenamedEvent) {
+        taskId = event.taskId;
+        taskName = event.taskName
+
+        updatedAt = createdAt
+    }
+
+    @StateTransitionFunc
+    fun executorsChangedApply(event: ExecutorsChangedEvent) {
+        taskId = event.taskId;
+        executors = event.executors
+
+        updatedAt = createdAt
+    }
 }

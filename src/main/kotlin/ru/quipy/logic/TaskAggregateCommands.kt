@@ -14,9 +14,9 @@ fun TaskAggregateState.create(
     if (services.projectEsService.getState(projectId) == null) {
         throw IllegalArgumentException("No project with id $projectId")
     }
-    executors.forEach {
-        if (services.membersEsService.getState(it) == null) {
-            throw IllegalArgumentException("No members with id $it")
+    executors.forEach { executorId ->
+        if (services.projectEsService.getState(executorId)!!.members.find { it == executorId } == null) {
+            throw IllegalArgumentException("No members with id $executorId")
         }
     }
     return TaskCreatedEvent(

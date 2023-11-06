@@ -11,6 +11,7 @@ const val USER_CREATED_EVENT = "USER_CREATED_EVENT"
 class UserCreatedEvent(
     val userId: UUID,
     val nickname: String,
+    val username: String,
     val password: String,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<UserAggregate>(

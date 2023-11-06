@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ru.quipy.api.UserAggregate
 import ru.quipy.api.UserCreatedEvent
+import ru.quipy.config.Services
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.ProjectAggregateState
 import ru.quipy.logic.UserAggregateState
@@ -17,12 +18,12 @@ import java.util.*
 @RestController
 @RequestMapping("/users")
 class UserController(
-    val userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
+    val services: Services
 ) {
 
-    @PostMapping("/{userNickname}")
-    fun createUser(@PathVariable userNickname: String, @RequestParam password: String) : UserCreatedEvent {
-        return userEsService.create { it.create(UUID.randomUUID(), userNickname, password) }
+    @PostMapping("/createName")
+    fun createUser(@RequestParam nickname: String, @RequestParam name: String, @RequestParam password: String) : UserCreatedEvent {
+        return services.userEsService.create { it.create(UUID.randomUUID(), nickname, name, password) }
     }
 
 
@@ -30,7 +31,7 @@ class UserController(
     // не ивент сорсинг
     @GetMapping("/{userId}")
     fun getUser(@PathVariable userId: UUID) : UserAggregateState? {
-        return userEsService.getState(userId);
+        return services.userEsService.getState(userId);
     }
 
 }

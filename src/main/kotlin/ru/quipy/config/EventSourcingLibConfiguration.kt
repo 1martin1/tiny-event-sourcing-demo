@@ -64,8 +64,6 @@ class EventSourcingLibConfiguration {
 
     @Bean
     fun taskEsService() = eventSourcingServiceFactory.create<UUID, TaskAggregate, TaskAggregateState>()
-    @Bean
-    fun membersEsService() = eventSourcingServiceFactory.create<UUID, MembersAggregate, MembersAggregateState>()
 
     @PostConstruct
     fun init() {

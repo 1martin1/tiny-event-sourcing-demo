@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 @ControllerAdvice
 class GlobalExceptionHandler {
     class ErrorEntity(
-        val message: String?
+        val message: String?,
+        var time: Long = System.currentTimeMillis(),
     )
     @ExceptionHandler
     fun errorHandler(e: Exception) : ResponseEntity<ErrorEntity> {

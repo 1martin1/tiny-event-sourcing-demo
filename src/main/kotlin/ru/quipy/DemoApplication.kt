@@ -5,7 +5,7 @@ import org.springframework.boot.runApplication
 import ru.quipy.config.Services
 
 @SpringBootApplication
-class DemoApplication(val services: Services)
+class DemoApplication
 
 fun main(args: Array<String>) {
 	runApplication<DemoApplication>(*args)

@@ -2,39 +2,28 @@ package ru.quipy.controller
 
 import org.springframework.web.bind.annotation.*
 import ru.quipy.api.*
-import ru.quipy.core.EventSourcingService
+import ru.quipy.config.Services
 import ru.quipy.logic.*
 import java.util.*
 
 @RestController
 @RequestMapping("/tasks")
 class TaskController(
-    val taskEsService: EventSourcingService<UUID, TaskAggregate, TaskAggregateState>,
-    val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
-
+    val services: Services
     ) {
     @PostMapping("/{taskName}")
     fun createTask(@PathVariable taskName: String, @RequestParam projectId: UUID, @RequestParam executors: List<UUID>) : TaskCreatedEvent {
-        if (projectEsService.getState(projectId) == null) {
-            throw IllegalArgumentException("No project with id $projectId")
-        }
-        return taskEsService.create { it.create(UUID.randomUUID(), taskName, projectId, executors) }
+        return services.taskEsService.create { it.create(UUID.randomUUID(), taskName, projectId, executors, services) }
     }
 
-    @PostMapping("/{taskId}")
+    @PostMapping("/{taskId}/rename")
     fun renameTask(@PathVariable taskId: UUID, @RequestParam taskName: String) : TaskRenamedEvent {
-        if (taskEsService.getState(taskId) == null) {
-            throw IllegalArgumentException("No task with id $taskId")
-        }
-        return taskEsService.update(taskId) { it.rename(taskId, taskName) }
+        return services.taskEsService.update(taskId) { it.rename(taskId, taskName, services) }
     }
 
-    @PostMapping("/{taskId}")
+    @PostMapping("/{taskId}/setExecutors")
     fun setExecutors(@PathVariable taskId: UUID, @RequestParam executors: List<UUID>) : ExecutorsChangedEvent {
-        if (taskEsService.getState(taskId) == null) {
-            throw IllegalArgumentException("No task with id $taskId")
-        }
-        return taskEsService.update(taskId) { it.setExecutors(taskId, executors) }
+        return services.taskEsService.update(taskId) { it.setExecutors(taskId, executors, services) }
     }
 
 
@@ -43,7 +32,7 @@ class TaskController(
     // не ивент сорсинг
     @GetMapping("/{taskId}")
     fun getTask(@PathVariable taskId: UUID) : TaskAggregateState? {
-        return taskEsService.getState(taskId)
+        return services.taskEsService.getState(taskId)
     }
 
 }

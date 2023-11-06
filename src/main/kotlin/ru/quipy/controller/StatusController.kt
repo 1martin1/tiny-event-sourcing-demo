@@ -12,15 +12,22 @@ import java.util.*
 @RestController
 @RequestMapping("/statuses")
 class StatusController(
+    val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>,
     val statusEsService: EventSourcingService<UUID, StatusAggregate, StatusAggregateState>
 ) {
     @PostMapping("/{statusName}")
-    fun createTask(@PathVariable statusName: String, @RequestParam projectId: UUID, taskId: UUID) : StatusCreatedEvent {
+    fun createStatus(@PathVariable statusName: String, @RequestParam projectId: UUID, taskId: UUID) : StatusCreatedEvent {
+        if (projectEsService.getState(projectId) == null) {
+            throw IllegalArgumentException("No project with id $projectId")
+        }
         return statusEsService.create { it.create(UUID.randomUUID(), statusName, projectId, taskId) }
     }
 
-    @PostMapping("/{statusID}")
+    @PostMapping("/{statusId}")
     fun changeStatus(@PathVariable statusId: UUID, @RequestParam taskName: String) : StatusChangedEvent {
+        if (statusEsService.getState(statusId) == null) {
+            throw IllegalArgumentException("No status with id $statusId")
+        }
         return statusEsService.create { it.update(statusId, taskName) }
     }
 }

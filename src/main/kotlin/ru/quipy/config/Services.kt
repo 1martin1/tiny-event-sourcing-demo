@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service
 import ru.quipy.api.*
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.*
+import ru.quipy.projections.AnnotationBasedProjectEventsSubscriber
+import ru.quipy.projections.ProjectEventsSubscriber
+import ru.quipy.projections.ProjectProjection
 import java.util.*
 
 @Service
@@ -13,4 +16,5 @@ class Services @Autowired constructor (
     val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>,
     val userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>,
     val statusEsService: EventSourcingService<UUID, StatusAggregate, StatusAggregateState>,
+    val projectProjection: ProjectProjection,
 )

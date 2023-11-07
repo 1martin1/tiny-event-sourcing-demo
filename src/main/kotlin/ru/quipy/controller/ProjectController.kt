@@ -16,6 +16,7 @@ import ru.quipy.logic.ProjectAggregateState
 import ru.quipy.logic.addMember
 import ru.quipy.logic.create
 import java.util.*
+import kotlin.collections.List
 
 @RestController
 @RequestMapping("/projects")
@@ -37,4 +38,11 @@ class ProjectController(
     fun getAccount(@PathVariable projectId: UUID) : ProjectAggregateState? {
         return services.projectEsService.getState(projectId)
     }
+
+    @GetMapping("/projects")
+    fun getProjects(): List<UUID> {
+
+        return services.projectProjection.projectIds
+    }
+
 }

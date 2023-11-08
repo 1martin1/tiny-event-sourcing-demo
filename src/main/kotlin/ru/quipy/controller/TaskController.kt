@@ -35,4 +35,8 @@ class TaskController(
         return services.taskEsService.getState(taskId)
     }
 
+    @GetMapping("/tasks")
+    fun getTasks() : List<UUID> {
+        return services.taskProjection.taskIds
+    }
 }

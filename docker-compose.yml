@@ -12,7 +12,7 @@ services:
     volumes:
       - ppo_mongo_data:/data/db
     networks:
-      - ppo_netowrk
+      - ppo_network
 
   task-manager:
     image: ppo_task_manager
@@ -26,11 +26,11 @@ services:
     ports:
       - 8080:8080
     networks:
-      - ppo_netowrk
+      - ppo_network
 
 networks:
-  ppo_netowrk:
-    name: ppo_netowrk
+  ppo_network:
+    name: ppo_network
 
 volumes:
   ppo_mongo_data:

@@ -1,14 +1,18 @@
 package ru.quipy.logic
 
-import ru.quipy.api.*
+import ru.quipy.api.ExecutorsChangedEvent
+import ru.quipy.api.TaskAggregate
+import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.TaskRenamedEvent
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
 import java.util.*
 
 class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
     private lateinit var taskId: UUID
-    private lateinit var taskName: String
-    private lateinit var executors: List<UUID>
+    lateinit var taskName: String
+    lateinit var executors: List<UUID>
+    lateinit var projectId: UUID
     var createdAt: Long = System.currentTimeMillis()
     var updatedAt: Long = System.currentTimeMillis()
 
@@ -22,13 +26,13 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
         taskId = event.taskId;
         taskName = event.taskName
         executors = event.executors
+        projectId = event.projectId
 
         updatedAt = createdAt
     }
 
     @StateTransitionFunc
     fun taskRenamedApply(event: TaskRenamedEvent) {
-        taskId = event.taskId;
         taskName = event.taskName
 
         updatedAt = createdAt
@@ -36,7 +40,6 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
 
     @StateTransitionFunc
     fun executorsChangedApply(event: ExecutorsChangedEvent) {
-        taskId = event.taskId;
         executors = event.executors
 
         updatedAt = createdAt

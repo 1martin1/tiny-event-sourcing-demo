@@ -19,6 +19,15 @@ fun TaskAggregateState.create(
             throw IllegalArgumentException("No members with id $executorId")
         }
     }
+
+    if (services.taskProjection.taskIds.any {
+            services.taskEsService.getState(it)!!.projectId == projectId && services.taskEsService.getState(
+                it
+            )!!.taskName == taskName
+        }) {
+        throw IllegalArgumentException("Task $id already exists")
+
+    }
     return TaskCreatedEvent(
         taskId = id,
         projectId = projectId,

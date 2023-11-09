@@ -1,7 +1,6 @@
 package ru.quipy.logic
 
-import ru.quipy.api.MemberAddedEvent
-import ru.quipy.api.ProjectCreatedEvent
+import ru.quipy.api.*
 import ru.quipy.config.Services
 import java.util.*
 
@@ -30,5 +29,23 @@ fun ProjectAggregateState.addMember(projectId: UUID, userId: UUID, services: Ser
     return MemberAddedEvent(
         projectId = projectId,
         userId = userId,
+    )
+}
+
+fun ProjectAggregateState.addTask(taskCreatedEvent: TaskCreatedEvent, services: Services): TaskAddedEvent {
+    if (services.projectEsService.getState(taskCreatedEvent.projectId) == null) {
+        throw IllegalArgumentException("No project with id ${taskCreatedEvent.projectId}")
+    }
+    return TaskAddedEvent(
+        taskCreatedEvent = taskCreatedEvent
+    )
+}
+
+fun ProjectAggregateState.addStatus(statusCreatedEvent: StatusCreatedEvent, services: Services): StatusAddedEvent {
+    if (services.projectEsService.getState(statusCreatedEvent.projectId) == null) {
+        throw IllegalArgumentException("No project with id ${statusCreatedEvent.projectId}")
+    }
+    return StatusAddedEvent(
+        statusCreatedEvent = statusCreatedEvent
     )
 }

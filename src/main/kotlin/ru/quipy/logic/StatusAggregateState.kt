@@ -1,14 +1,17 @@
 package ru.quipy.logic
 
-import ru.quipy.api.*
+import ru.quipy.api.StatusAggregate
+import ru.quipy.api.StatusChangedEvent
+import ru.quipy.api.StatusCreatedEvent
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
 import java.util.*
 
 class StatusAggregateState : AggregateState<UUID, StatusAggregate> {
     private lateinit var statusId: UUID
-    private lateinit var projecrId: UUID
-    private lateinit var taskId: UUID
+    lateinit var projecrId: UUID
+    lateinit var taskId: UUID
+
     var createdAt: Long = System.currentTimeMillis()
     var updatedAt: Long = System.currentTimeMillis()
 

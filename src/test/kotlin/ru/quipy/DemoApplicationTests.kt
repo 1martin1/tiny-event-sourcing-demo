@@ -4,10 +4,12 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.runApplication
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.test.context.event.annotation.BeforeTestClass
 import ru.quipy.api.ProjectAggregate
 import ru.quipy.api.StatusAggregate
 import ru.quipy.api.TaskAggregate
@@ -30,6 +32,12 @@ class DemoApplicationTests {
 		private val testProjectTitle = "MyProject"
 		private val testTaskName = "MyTask"
 		private val testStatusName = "Done"
+
+		@JvmStatic
+		@BeforeTestClass
+		fun start(): Unit {
+			runApplication<DemoApplication>()
+		}
 	}
 
 	@Autowired
@@ -50,11 +58,12 @@ class DemoApplicationTests {
 	@Autowired
 	private lateinit var mongoTemplate: MongoTemplate
 
-	@BeforeEach
-	fun init(){
-		cleanDatabase()
-	}
 
+//	fun init(){
+//		cleanDatabase()
+//	}
+
+	@BeforeEach
 	fun cleanDatabase(){
 		mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(testId)), "aggregate-user")
 		mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(userId)), "aggregate-user")
@@ -133,7 +142,10 @@ class DemoApplicationTests {
 			Assertions.assertEquals(0, state.executors.size)
 		}
 
+//		Thread.sleep(5000)
+
 		val projectState = projectEsService.getState(projectId)
+		println(projectState!!.tasks.size)
 
 		Assertions.assertNotEquals(projectState, null)
 
@@ -169,6 +181,7 @@ class DemoApplicationTests {
 			Assertions.assertEquals(testStatusName, state.name)
 		}
 
+		Thread.sleep(5000)
 		val projectState = projectEsService.getState(projectId)
 
 		Assertions.assertNotEquals(projectState, null)

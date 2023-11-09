@@ -15,7 +15,7 @@ fun TaskAggregateState.create(
         throw IllegalArgumentException("No project with id $projectId")
     }
     executors.forEach { executorId ->
-        if (services.projectEsService.getState(executorId)!!.members.find { it == executorId } == null) {
+        if (services.projectEsService.getState(projectId)!!.members.find { it == executorId } == null) {
             throw IllegalArgumentException("No members with id $executorId")
         }
     }
@@ -28,6 +28,8 @@ fun TaskAggregateState.create(
         throw IllegalArgumentException("Task $id already exists")
 
     }
+
+    println("OK1")
     return TaskCreatedEvent(
         taskId = id,
         projectId = projectId,

@@ -8,21 +8,21 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
-import ru.quipy.api.TaskAggregate
-import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.StatusAggregate
+import ru.quipy.api.StatusCreatedEvent
 import ru.quipy.config.Services
-import ru.quipy.logic.addTask
+import ru.quipy.logic.addStatus
 import ru.quipy.streams.AggregateSubscriptionsManager
 import javax.annotation.PostConstruct
 
 @Service
-class TasksEventsSubscriber {
+class StatusEventsSubscriber {
 
-    val logger: Logger = LoggerFactory.getLogger(TasksEventsSubscriber::class.java)
+    val logger: Logger = LoggerFactory.getLogger(StatusEventsSubscriber::class.java)
 
     @Autowired
     lateinit var subscriptionsManager: AggregateSubscriptionsManager
-//    @Autowired
+    //    @Autowired
 //    lateinit var taskProjection: TaskProjection
     @Autowired
     lateinit var services: Services
@@ -31,17 +31,16 @@ class TasksEventsSubscriber {
 
     @PostConstruct
     fun init() {
-        mongoTemplate.updateFirst(Query.query(Criteria.where("_id").`is`("task-event-listener")), Update.update("readIndex", 0) ,"event-stream-read-index")
-        mongoTemplate.updateFirst(Query.query(Criteria.where("_id").`is`("task-event-listener")), Update.update("version", 0) ,"event-stream-read-index")
-        subscriptionsManager.createSubscriber(TaskAggregate::class, "task-event-listener") {
+        mongoTemplate.updateFirst(Query.query(Criteria.where("_id").`is`("status-event-listener")), Update.update("readIndex", 0) ,"event-stream-read-index")
+        mongoTemplate.updateFirst(Query.query(Criteria.where("_id").`is`("status-event-listener")), Update.update("version", 0) ,"event-stream-read-index")
+        subscriptionsManager.createSubscriber(StatusAggregate::class, "status-event-listener") {
 
-            `when`(TaskCreatedEvent::class) { event ->
+            `when`(StatusCreatedEvent::class) { event ->
 
-                println("Task Cr")
-                logger.info("Task created: {}", event.taskName)
+                logger.info("Status created: {}", event.statusName)
                 services.taskProjection.addTask(event.projectId)
 
-                services.projectEsService.update(event.projectId) {it.addTask(event, services)}
+                services.projectEsService.update(event.projectId) {it.addStatus(event, services)}
             }
         }
     }

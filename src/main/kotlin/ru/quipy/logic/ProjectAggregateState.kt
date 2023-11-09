@@ -25,10 +25,12 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     // State transition functions which is represented by the class member function
     @StateTransitionFunc
     fun projectCreatedApply(event: ProjectCreatedEvent) {
+        println("HEHE(")
         projectId = event.projectId
         title = event.title
         creatorId = event.creatorId
         members.add(event.creatorId)
+
         updatedAt = createdAt
     }
 
@@ -40,9 +42,18 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     }
 
     @StateTransitionFunc
-    fun taskCreatedApply(event: TaskCreatedEvent) {
+    fun taskCreatedApply(event: TaskAddedEvent) {
+        tasks.add(event.taskCreatedEvent.taskId)
 
-        tasks.add(event.taskId)
         updatedAt = System.currentTimeMillis()
     }
+
+    @StateTransitionFunc
+    fun StatusCreatedApply(event: StatusAddedEvent) {
+        statuses.add(event.statusCreatedEvent.statusId)
+
+        updatedAt = System.currentTimeMillis()
+    }
+
+
 }

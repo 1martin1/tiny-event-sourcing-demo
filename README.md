@@ -1,3 +1,5 @@
+http://localhost:8080/swagger-ui/index.html
+
 # Tiny event sourcing library demo
 This project demonstrates how easily you can build your event-driven, event sourcing based application POC in 15 minutes
 using [Tiny Event Sourcing library](https://github.com/andrsuh/tiny-event-sourcing)

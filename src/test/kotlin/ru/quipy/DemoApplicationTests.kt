@@ -102,6 +102,9 @@ class DemoApplicationTests {
 			Assertions.assertEquals(testId, state.getId())
 			Assertions.assertEquals(testProjectTitle, state.title)
 			Assertions.assertEquals(userId, state.creatorId)
+			Assertions.assertEquals(0, state.tasks.size)
+			Assertions.assertEquals(userId, state.members.firstOrNull())
+			Assertions.assertEquals(0, state.statuses.size)
 		}
 	}
 
@@ -127,7 +130,15 @@ class DemoApplicationTests {
 			Assertions.assertEquals(testId, state.getId())
 			Assertions.assertEquals(testTaskName, state.taskName)
 			Assertions.assertEquals(projectId, state.projectId)
-			Assertions.assertEquals(state.executors.size, 0)
+			Assertions.assertEquals(0, state.executors.size)
+		}
+
+		val projectState = projectEsService.getState(projectId)
+
+		Assertions.assertNotEquals(projectState, null)
+
+		if (projectState != null) {
+			Assertions.assertEquals(testId, projectState.tasks.firstOrNull())
 		}
 	}
 
@@ -156,6 +167,14 @@ class DemoApplicationTests {
 		if (state != null) {
 			Assertions.assertEquals(testId, state.getId())
 			Assertions.assertEquals(testStatusName, state.name)
+		}
+
+		val projectState = projectEsService.getState(projectId)
+
+		Assertions.assertNotEquals(projectState, null)
+
+		if (projectState != null) {
+			Assertions.assertEquals(testId, projectState.statuses.firstOrNull())
 		}
 	}
 

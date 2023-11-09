@@ -21,7 +21,7 @@ class UserAggregateState : AggregateState<UUID, UserAggregate> {
     fun userCreatedApply(event: UserCreatedEvent) {
         userId = event.userId
         nickname = event.nickname
-        name = event.name
+        name = event.username
         password = event.password
         updatedAt = createdAt
     }

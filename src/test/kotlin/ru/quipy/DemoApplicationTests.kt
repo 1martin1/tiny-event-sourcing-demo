@@ -3,7 +3,6 @@ package ru.quipy
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.runApplication
 import org.springframework.boot.test.context.SpringBootTest
@@ -34,7 +33,7 @@ class DemoApplicationTests {
 		private val testProjectTitle = "MyProject"
 		private val testTaskName = "MyTask"
 		private val testNewTaskName = "MyNewTask"
-		private val testStatusName = "In_Progress"
+//		private val testStatusName = "In_Progress"
 		private val testNewStatusName = "Done"
 		private val testStatusName = "Done"
 
@@ -199,7 +198,6 @@ class DemoApplicationTests {
 			Assertions.assertEquals(projectId, state.projectId)
 			Assertions.assertEquals(0, state.executors.size)
 		}
-
 		val projectState = projectEsService.getState(projectId)
 
 		Assertions.assertNotEquals(projectState, null)

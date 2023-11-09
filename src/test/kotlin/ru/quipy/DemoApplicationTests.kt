@@ -3,6 +3,7 @@ package ru.quipy
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -20,6 +21,7 @@ import java.util.*
 @SpringBootTest
 class DemoApplicationTests {
 	companion object{
+		private val user2Id = UUID.randomUUID()
 		private val userId = UUID.randomUUID()
 		private val projectId = UUID.randomUUID()
 		private val taskId = UUID.randomUUID()
@@ -29,7 +31,9 @@ class DemoApplicationTests {
 		private val testPassword = "qwerty"
 		private val testProjectTitle = "MyProject"
 		private val testTaskName = "MyTask"
-		private val testStatusName = "Done"
+		private val testNewTaskName = "MyNewTask"
+		private val testStatusName = "In_Progress"
+		private val testNewStatusName = "Done"
 	}
 
 	@Autowired
@@ -85,6 +89,20 @@ class DemoApplicationTests {
 	}
 
 	@Test
+	fun createUsersWithEqualIDs() {
+		userEsService.create {
+			it.create(testId, testNickname, testName, testPassword, services)
+		}
+
+
+		Assertions.assertThrows(Throwable::class.java){
+			userEsService.create {
+				it.create(testId, testNickname, testName, testPassword, services)
+			}
+		}
+	}
+
+	@Test
 	fun createProject(){
 		userEsService.create {
 			it.create(userId, testNickname, testName, testPassword, services)
@@ -105,6 +123,46 @@ class DemoApplicationTests {
 			Assertions.assertEquals(0, state.tasks.size)
 			Assertions.assertEquals(userId, state.members.firstOrNull())
 			Assertions.assertEquals(0, state.statuses.size)
+		}
+	}
+
+	@Test
+	fun addMemberToProject(){
+		userEsService.create {
+			it.create(userId, testNickname, testName, testPassword, services)
+		}
+
+		projectEsService.create {
+			it.create(testId, testProjectTitle, userId, services)
+		}
+
+		projectEsService.update(testId){
+			it.addMember(testId, user2Id, services)
+		}
+
+		val state = projectEsService.getState(testId)
+
+		Assertions.assertNotEquals(state, null)
+
+		if (state != null) {
+			Assertions.assertEquals(listOf(userId, user2Id), state.members)
+		}
+	}
+
+	@Test
+	fun addAlreadyAddedMemberToProject(){
+		userEsService.create {
+			it.create(userId, testNickname, testName, testPassword, services)
+		}
+
+		projectEsService.create {
+			it.create(testId, testProjectTitle, userId, services)
+		}
+
+		Assertions.assertThrows(Throwable::class.java){
+			projectEsService.update(testId){
+				it.addMember(testId, userId, services)
+			}
 		}
 	}
 
@@ -143,6 +201,68 @@ class DemoApplicationTests {
 	}
 
 	@Test
+	fun renameTask(){
+		userEsService.create {
+			it.create(userId, testNickname, testName, testPassword, services)
+		}
+
+		projectEsService.create {
+			it.create(projectId, testProjectTitle, userId, services)
+		}
+
+		taskEsService.create {
+			it.create(testId, testTaskName, projectId, listOf(), services)
+		}
+
+		var state = taskEsService.getState(testId)
+
+		Assertions.assertNotEquals(state, null)
+
+		if (state != null) {
+			Assertions.assertEquals(testTaskName, state.taskName)
+		}
+
+		taskEsService.update(testId){
+			it.rename(testId, testNewTaskName, services)
+		}
+
+		state = taskEsService.getState(testId)
+
+		Assertions.assertNotEquals(state, null)
+
+		if (state != null) {
+			Assertions.assertEquals(testNewTaskName, state.taskName)
+		}
+	}
+
+	@Test
+	fun addExecutorToTask(){
+		userEsService.create {
+			it.create(userId, testNickname, testName, testPassword, services)
+		}
+
+		projectEsService.create {
+			it.create(projectId, testProjectTitle, userId, services)
+		}
+
+		taskEsService.create {
+			it.create(testId, testTaskName, projectId, listOf(), services)
+		}
+
+		taskEsService.update(testId){
+			it.setExecutors(testId, listOf(userId, user2Id), services)
+		}
+
+		val state = taskEsService.getState(testId)
+
+		Assertions.assertNotEquals(state, null)
+
+		if (state != null) {
+			Assertions.assertEquals(listOf(userId, user2Id), state.executors)
+		}
+	}
+
+	@Test
 	fun createStatus(){
 		userEsService.create {
 			it.create(userId, testNickname, testName, testPassword, services)
@@ -175,6 +295,37 @@ class DemoApplicationTests {
 
 		if (projectState != null) {
 			Assertions.assertEquals(testId, projectState.statuses.firstOrNull())
+		}
+	}
+
+	@Test
+	fun updateStatus(){
+		userEsService.create {
+			it.create(userId, testNickname, testName, testPassword, services)
+		}
+
+		projectEsService.create {
+			it.create(projectId, testProjectTitle, userId, services)
+		}
+
+		taskEsService.create {
+			it.create(taskId, testTaskName, projectId, listOf(), services)
+		}
+
+		statusEsService.create {
+			it.create(testId, testStatusName, projectId, taskId, services)
+		}
+
+		statusEsService.update(testId){
+			it.update(testId, testNewStatusName, services)
+		}
+
+		val state = statusEsService.getState(testId)
+
+		Assertions.assertNotEquals(state, null)
+
+		if (state != null) {
+			Assertions.assertEquals(testNewStatusName, state.name)
 		}
 	}
 

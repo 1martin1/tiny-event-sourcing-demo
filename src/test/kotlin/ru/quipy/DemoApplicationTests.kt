@@ -282,6 +282,7 @@ class DemoApplicationTests {
 			it.create(testId, testTaskName, projectId, listOf(), services)
 		}
 
+//		Thread.sleep(5000)
 		projectEsService.update(projectId){
 			it.addMember(projectId, user2Id, services)
 		}
@@ -334,13 +335,9 @@ class DemoApplicationTests {
 			it.create(testId, testTaskName, projectId, listOf(), services)
 		}
 
-		projectEsService.update(projectId){
-			it.addMember(projectId, user2Id, services)
-		}
-
 		Assertions.assertThrows(Throwable::class.java){
-			taskEsService.update(testId){
-				it.setExecutors(testId, listOf(userId, user2Id), services)
+			projectEsService.update(projectId){
+				it.addMember(projectId, user2Id, services)
 			}
 		}
 	}

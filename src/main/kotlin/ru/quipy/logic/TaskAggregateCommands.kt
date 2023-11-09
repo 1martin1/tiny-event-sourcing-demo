@@ -59,6 +59,22 @@ fun TaskAggregateState.setExecutors(
     if (services.taskEsService.getState(id) == null) {
         throw IllegalArgumentException("No task with id $id")
     }
+    executors.forEach { executorId ->
+        if (services.userEsService.getState(executorId) == null) {
+            throw IllegalArgumentException("No user with id $executorId")
+        }
+    }
+    executors.forEach { executorId ->
+        if (services.taskEsService.getState(id)!!.executors.any { it == executorId }) {
+            throw IllegalArgumentException("User $executorId already in task")
+        }
+    }
+    executors.forEach { executorId ->
+        if (executors.any { it == executorId }) {
+            throw IllegalArgumentException("User $executorId with same id")
+        }
+    }
+
 
     return ExecutorsChangedEvent(
         taskId = id,

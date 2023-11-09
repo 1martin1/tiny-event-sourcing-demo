@@ -70,6 +70,7 @@ class DemoApplicationTests {
 	fun cleanDatabase(){
 		mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(testId)), "aggregate-user")
 		mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(userId)), "aggregate-user")
+		mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(user2Id)), "aggregate-user")
 		mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(testId)), "aggregate-project")
 		mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(projectId)), "aggregate-project")
 		mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(testId)), "aggregate-task")
@@ -140,6 +141,10 @@ class DemoApplicationTests {
 			it.create(userId, testNickname, testName, testPassword, services)
 		}
 
+		userEsService.create {
+			it.create(user2Id, testNickname, testName, testPassword, services)
+		}
+
 		projectEsService.create {
 			it.create(testId, testProjectTitle, userId, services)
 		}
@@ -154,6 +159,23 @@ class DemoApplicationTests {
 
 		if (state != null) {
 			Assertions.assertEquals(listOf(userId, user2Id), state.members)
+		}
+	}
+
+	@Test
+	fun addNotCreatedMemberToProject(){
+		userEsService.create {
+			it.create(userId, testNickname, testName, testPassword, services)
+		}
+
+		projectEsService.create {
+			it.create(testId, testProjectTitle, userId, services)
+		}
+
+		Assertions.assertThrows(Throwable::class.java){
+			projectEsService.update(testId){
+				it.addMember(testId, user2Id, services)
+			}
 		}
 	}
 
@@ -248,12 +270,20 @@ class DemoApplicationTests {
 			it.create(userId, testNickname, testName, testPassword, services)
 		}
 
+		userEsService.create {
+			it.create(user2Id, testNickname, testName, testPassword, services)
+		}
+
 		projectEsService.create {
 			it.create(projectId, testProjectTitle, userId, services)
 		}
 
 		taskEsService.create {
 			it.create(testId, testTaskName, projectId, listOf(), services)
+		}
+
+		projectEsService.update(projectId){
+			it.addMember(projectId, user2Id, services)
 		}
 
 		taskEsService.update(testId){
@@ -266,6 +296,77 @@ class DemoApplicationTests {
 
 		if (state != null) {
 			Assertions.assertEquals(listOf(userId, user2Id), state.executors)
+		}
+	}
+
+	@Test
+	fun addExecutorWithEqualsIDsToTask(){
+		userEsService.create {
+			it.create(userId, testNickname, testName, testPassword, services)
+		}
+
+		projectEsService.create {
+			it.create(projectId, testProjectTitle, userId, services)
+		}
+
+		taskEsService.create {
+			it.create(testId, testTaskName, projectId, listOf(), services)
+		}
+
+		Assertions.assertThrows(Throwable::class.java){
+			taskEsService.update(testId){
+				it.setExecutors(testId, listOf(userId, userId), services)
+			}
+		}
+	}
+
+	@Test
+	fun addNotCreatedExecutorToTask(){
+		userEsService.create {
+			it.create(userId, testNickname, testName, testPassword, services)
+		}
+
+		projectEsService.create {
+			it.create(projectId, testProjectTitle, userId, services)
+		}
+
+		taskEsService.create {
+			it.create(testId, testTaskName, projectId, listOf(), services)
+		}
+
+		projectEsService.update(projectId){
+			it.addMember(projectId, user2Id, services)
+		}
+
+		Assertions.assertThrows(Throwable::class.java){
+			taskEsService.update(testId){
+				it.setExecutors(testId, listOf(userId, user2Id), services)
+			}
+		}
+	}
+
+	@Test
+	fun addNotInTaskProjectExecutorToTask(){
+		userEsService.create {
+			it.create(userId, testNickname, testName, testPassword, services)
+		}
+
+		userEsService.create {
+			it.create(user2Id, testNickname, testName, testPassword, services)
+		}
+
+		projectEsService.create {
+			it.create(projectId, testProjectTitle, userId, services)
+		}
+
+		taskEsService.create {
+			it.create(testId, testTaskName, projectId, listOf(), services)
+		}
+
+		Assertions.assertThrows(Throwable::class.java){
+			taskEsService.update(testId){
+				it.setExecutors(testId, listOf(userId, user2Id), services)
+			}
 		}
 	}
 

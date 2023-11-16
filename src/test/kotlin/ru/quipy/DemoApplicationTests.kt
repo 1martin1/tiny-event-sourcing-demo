@@ -18,6 +18,7 @@ import ru.quipy.config.Services
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.*
 import java.util.*
+import java.util.concurrent.Executors
 
 @SpringBootTest
 class DemoApplicationTests {
@@ -136,6 +137,41 @@ class DemoApplicationTests {
 	}
 
 	@Test
+	fun aggTest(){
+		userEsService.create {
+			it.create(userId, testNickname, testName, testPassword, services)
+		}
+
+		projectEsService.create {
+			it.create(testId, testProjectTitle, userId, services)
+		}
+
+		val pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+		val lst = mutableListOf<UUID>()
+		for (i in 1..100) {
+			val uuid = UUID.randomUUID()
+			lst.add(uuid)
+		}
+		pool.submit{
+
+			services.userEsService.create { it.create(uuid, uuid.toString(), "1", "1", services) }
+		}
+
+		val state = projectEsService.getState(testId)
+
+		Assertions.assertNotEquals(state, null)
+
+		if (state != null) {
+			Assertions.assertEquals(testId, state.getId())
+			Assertions.assertEquals(testProjectTitle, state.title)
+			Assertions.assertEquals(userId, state.creatorId)
+			Assertions.assertEquals(0, state.tasks.size)
+			Assertions.assertEquals(userId, state.members.firstOrNull())
+			Assertions.assertEquals(0, state.statuses.size)
+		}
+	}
+
+	@Test
 	fun addMemberToProject(){
 		userEsService.create {
 			it.create(userId, testNickname, testName, testPassword, services)
@@ -149,6 +185,7 @@ class DemoApplicationTests {
 			it.create(testId, testProjectTitle, userId, services)
 		}
 
+//		Thread.sleep(5000)
 		projectEsService.update(testId){
 			it.addMember(testId, user2Id, services)
 		}
@@ -210,6 +247,7 @@ class DemoApplicationTests {
 			it.create(testId, testTaskName, projectId, listOf(), services)
 		}
 
+//		Thread.sleep(5000)
 		val state = taskEsService.getState(testId)
 
 		Assertions.assertNotEquals(state, null)

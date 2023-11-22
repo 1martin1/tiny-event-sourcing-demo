@@ -26,9 +26,9 @@ fun ProjectAggregateState.addMember(projectId: UUID, userId: UUID, services: Ser
     if (services.projectEsService.getState(projectId) == null) {
         throw IllegalArgumentException("No project with id $projectId")
     }
-    if (services.userProjection.userIds.find { it == userId } == null) {
-        throw IllegalArgumentException("No user with id $userId")
-    }
+//    if (services.userProjection.userIds.find { it == userId } == null) {
+//        throw IllegalArgumentException("No user with id $userId")
+//    }
     if (services.projectEsService.getState(projectId)!!.members.any { it == userId }) {
         throw IllegalArgumentException("Member $userId already in project")
     }

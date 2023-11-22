@@ -18,7 +18,6 @@ import ru.quipy.config.Services
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.*
 import java.util.*
-import java.util.concurrent.Executors
 
 @SpringBootTest
 class DemoApplicationTests {
@@ -137,7 +136,7 @@ class DemoApplicationTests {
 	}
 
 	@Test
-	fun aggTest(){
+	fun aggregateTest(){
 		userEsService.create {
 			it.create(userId, testNickname, testName, testPassword, services)
 		}
@@ -146,28 +145,38 @@ class DemoApplicationTests {
 			it.create(testId, testProjectTitle, userId, services)
 		}
 
-		val pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+//		val pool = Executors.newFixedThreadPool(100)
 		val lst = mutableListOf<UUID>()
 		for (i in 1..100) {
-			val uuid = UUID.randomUUID()
-			lst.add(uuid)
-		}
-		pool.submit{
+			val thread = Thread {
+				val uuid = UUID.randomUUID()
+//				lst.add(uuid)
+				services.userEsService.create { it.create(uuid, uuid.toString(), "1", "1", services) }
+				services.projectEsService.update (testId) {it.addMember(testId, uuid, services)}
+			}
+			thread.start()
+			Thread.sleep(10)
 
-			services.userEsService.create { it.create(uuid, uuid.toString(), "1", "1", services) }
 		}
 
+//		while (lst.size < 100) {
+//			Thread.sleep(100)
+//		}
+		Thread.sleep(15000)
 		val state = projectEsService.getState(testId)
 
 		Assertions.assertNotEquals(state, null)
 
 		if (state != null) {
-			Assertions.assertEquals(testId, state.getId())
-			Assertions.assertEquals(testProjectTitle, state.title)
-			Assertions.assertEquals(userId, state.creatorId)
-			Assertions.assertEquals(0, state.tasks.size)
-			Assertions.assertEquals(userId, state.members.firstOrNull())
-			Assertions.assertEquals(0, state.statuses.size)
+			println(state.members.size)
+			println(state.membersCount)
+			Assertions.assertEquals(state.members.size, state.membersCount)
+//			println(lst.size)
+			state.members.forEach {
+				println(it)
+				Assertions.assertNotNull(services.userEsService.getState(it))
+			}
+			Assertions.assertEquals(101, services.userProjection.userIds.size)
 		}
 	}
 

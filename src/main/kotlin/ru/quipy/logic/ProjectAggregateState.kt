@@ -14,6 +14,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     var tasks: MutableList<UUID> = mutableListOf()
     var members: MutableList<UUID> = mutableListOf()
     var statuses: MutableList<UUID> = mutableListOf()
+    var membersCount : Int = 0
 
     lateinit var creatorId: UUID
     lateinit var title: String
@@ -25,11 +26,11 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     // State transition functions which is represented by the class member function
     @StateTransitionFunc
     fun projectCreatedApply(event: ProjectCreatedEvent) {
-        println("HEHE(")
         projectId = event.projectId
         title = event.title
         creatorId = event.creatorId
         members.add(event.creatorId)
+        membersCount = 1
 
         updatedAt = createdAt
     }
@@ -37,6 +38,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     @StateTransitionFunc
     fun memberAddedApply(event: MemberAddedEvent) {
         members.add(event.userId)
+        ++membersCount;
 
         updatedAt = createdAt
     }

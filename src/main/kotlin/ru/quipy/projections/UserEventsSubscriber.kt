@@ -35,7 +35,7 @@ class UserEventsSubscriber {
             `when`(UserCreatedEvent::class) { event ->
 
                 logger.info("User created: {}", event.nickname)
-                userProjection.addUser(event.userId)
+                userProjection.addUser(event.userId, event.nickname)
             }
         }
     }

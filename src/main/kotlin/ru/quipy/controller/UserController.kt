@@ -31,4 +31,14 @@ class UserController(
         return services.userProjection.userIds
     }
 
+    @PostMapping("/users/exists")
+    fun ifExists(@RequestParam login: String) : Boolean {
+        return services.userProjection.userLogins.containsValue(login);
+    }
+
+    @GetMapping("/{userId}/projects")
+    fun getProjects(@PathVariable userId: UUID) : List<UUID>? {
+        return services.userProjection.userProjects[userId]
+    }
+
 }

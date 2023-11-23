@@ -36,4 +36,13 @@ class ProjectController(
         return services.projectProjection.projectIds
     }
 
+    @GetMapping("/{projectId}/members")
+    fun getMembers(@PathVariable projectId: UUID): List<UUID> {
+        return services.projectProjection.projectMembers[projectId]!!
+    }
+
+    @GetMapping("/{projectId}/tasks")
+    fun getTasks(@PathVariable projectId: UUID): List<UUID> {
+        return services.projectProjection.projectTasks[projectId]!!
+    }
 }

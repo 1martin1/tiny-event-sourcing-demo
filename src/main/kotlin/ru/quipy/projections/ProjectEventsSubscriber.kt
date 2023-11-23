@@ -8,8 +8,11 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
+import ru.quipy.api.MemberAddedEvent
 import ru.quipy.api.ProjectAggregate
 import ru.quipy.api.ProjectCreatedEvent
+import ru.quipy.api.TaskAddedEvent
+import ru.quipy.config.Services
 import ru.quipy.streams.AggregateSubscriptionsManager
 import javax.annotation.PostConstruct
 
@@ -20,6 +23,9 @@ class ProjectEventsSubscriber {
 
     @Autowired
     lateinit var subscriptionsManager: AggregateSubscriptionsManager
+    @Autowired
+    lateinit var services: Services
+
     @Autowired
     lateinit var projectProjection: ProjectProjection
     @Autowired
@@ -32,10 +38,19 @@ class ProjectEventsSubscriber {
         subscriptionsManager.createSubscriber(ProjectAggregate::class, "project-event-listener") {
 
             `when`(ProjectCreatedEvent::class) { event ->
-
-                println("((")
                 logger.info("Project created: {}", event.title)
                 projectProjection.addProject(event.projectId)
+                projectProjection.addMemberToProject(event.projectId, event.creatorId);
+                services.userProjection.addProjectToUser(event.creatorId, event.projectId)
+            }
+
+            `when`(MemberAddedEvent::class) { event ->
+                projectProjection.addMemberToProject(event.projectId, event.userId);
+                services.userProjection.addProjectToUser(event.userId, event.projectId)
+            }
+
+            `when`(TaskAddedEvent::class) { event ->
+                projectProjection.addTaskToProject(event.taskCreatedEvent.projectId, event.taskCreatedEvent.taskId);
             }
         }
     }
